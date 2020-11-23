@@ -32,7 +32,7 @@ that we have created in the `__init__` function.
 '''
 
 class DBWNode(object):
-    def __init__(self):
+       def __init__(self):
         rospy.init_node('dbw_node')
 
         vehicle_mass = rospy.get_param('~vehicle_mass', 1736.35)
@@ -45,6 +45,7 @@ class DBWNode(object):
         steer_ratio = rospy.get_param('~steer_ratio', 14.8)
         max_lat_accel = rospy.get_param('~max_lat_accel', 3.)
         max_steer_angle = rospy.get_param('~max_steer_angle', 8.)
+        min_speed = rospy.get_param('~min_speed', 0.)
 
         self.steer_pub = rospy.Publisher('/vehicle/steering_cmd',
                                          SteeringCmd, queue_size=1)
@@ -53,10 +54,33 @@ class DBWNode(object):
         self.brake_pub = rospy.Publisher('/vehicle/brake_cmd',
                                          BrakeCmd, queue_size=1)
 
-        # TODO: Create `Controller` object
-        # self.controller = Controller(<Arguments you wish to provide>)
+        # Loop Rate
+        self.loop_frequency = 50 # Hz
+
+        # State
+        self.dbw_enabled = False
+        self.target_angular_velocity = 0.
+        self.target_linear_velocity = 0.
+
+        self.current_angular_velocity = 0.
+        self.current_linear_velocity = 0.
+
+        # TODO: Create `TwistController` object
+        self.controller = Controller( wheel_base,
+                                      steer_ratio,
+                                      min_speed,
+                                      max_lat_accel,
+                                      max_steer_angle,
+                                      accel_limit,
+                                      decel_limit,
+                                      self.loop_frequency,
+                                      vehicle_mass,
+                                      wheel_radius )
 
         # TODO: Subscribe to all the topics you need to
+        rospy.Subscriber('/current_velocity', TwistStamped, self.velocity_callback)
+        rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enabled_callback)
+        rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_callback)
 
         self.loop()
 
