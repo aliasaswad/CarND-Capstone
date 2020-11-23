@@ -34,5 +34,3 @@ class PID(object):
         self.last_error = error
         
         return val
-
-        return val
