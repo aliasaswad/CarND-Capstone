@@ -83,6 +83,38 @@ class DBWNode(object):
         rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_callback)
 
         self.loop()
+             
+     def velocity_callback(self, msg):
+        """
+        /current_velocity topic callback handler.
+        msg : geometry_msgs.msg.TwistStamped
+        Updates state:
+        - current_linear_velocity
+        - current_angular_velocity
+        """
+        self.current_linear_velocity = msg.twist.linear.x
+        self.current_angular_velocity = msg.twist.angular.z
+
+    def dbw_enabled_callback(self, msg):
+        """
+        /vehicle/dbw_enabled topic callback handler.
+        msg: Bool indicates if the the car is under drive-by-wire control(True) or if the driver is controlling the car(False)
+        Updates state:
+        - dbw_enabled
+        """
+        rospy.loginfo('DBW_ENABLED : {}'.format(msg.data))
+        self.dbw_enabled = msg.data
+
+    def twist_callback(self, msg):
+        """
+        /twist_cmd topic callback handler.
+        msg : geometry_msgs.msg.TwistStamped
+        Updates state:
+        - target_linear_velocity
+        - target_angular_velocity
+        """
+        self.target_linear_velocity = msg.twist.linear.x
+        self.target_angular_velocity = msg.twist.angular.z
 
     def loop(self):
         rate = rospy.Rate(50) # 50Hz
