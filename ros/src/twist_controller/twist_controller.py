@@ -68,3 +68,10 @@ class Controller(object):
         rospy.loginfo('SENDING - [throttle,brake,steer]:[{:.4f},{:.4f},{:.4f}], [cA,cL]:[{:.4f},{:.4f}]m [tA, tL]:[{:.4f},{:.4f}]'.format(throttle, brake, steer,current_angular_velocity, current_linear_velocity,target_angular_velocity, target_linear_velocity))
 
         return throttle, brake, steer
+    
+    def reset(self):
+        """
+        Reset the controller's state.
+        """
+        self.throttle_controller.reset()
+        self.low_pass_filter.reset()
