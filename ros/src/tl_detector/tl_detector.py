@@ -85,12 +85,19 @@ class TLDetector(object):
         self.lights = msg.lights
 
     def image_cb(self, msg):
+        if self.light_classifier is None:
+            rospy.logwarn('light_classifier not initialized yet')
+            return
+
+        cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        state = self.light_classifier.get_classification(cv_image)
+        rospy.loginfo(self.tlclasses_d[ state ] )
+
+    def image_cb(self, msg):
         """Identifies red lights in the incoming camera image and publishes the index
             of the waypoint closest to the red light's stop line to /traffic_waypoint
-
         Args:
             msg (Image): image from car-mounted camera
-
         """
         self.has_image = True
         self.camera_image = msg
@@ -114,6 +121,8 @@ class TLDetector(object):
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
 
+    def get_distance_between_poses( self, a, b ):
+        return math.sqrt( (a.position.x - b.position.x)**2 + (a.position.y - b.position.y)**2 )
     def get_closest_waypoint(self, pose):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
