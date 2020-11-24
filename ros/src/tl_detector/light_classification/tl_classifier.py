@@ -22,7 +22,7 @@ class TLClassifier(object):
         # load 
         with self.dg.as_default():
             gdef = tf.GraphDef()
-            with open(cwd+"/models/frozen_inference_graph.pb", 'rb') as f:
+            with open(cwd+"/frozen_inference_graph.pb", 'rb') as f:
                 gdef.ParseFromString( f.read() )
                 tf.import_graph_def( gdef, name="" )
 
