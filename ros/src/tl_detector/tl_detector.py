@@ -123,6 +123,7 @@ class TLDetector(object):
 
     def get_distance_between_poses( self, a, b ):
         return math.sqrt( (a.position.x - b.position.x)**2 + (a.position.y - b.position.y)**2 )
+    
     def get_closest_waypoint(self, pose):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
@@ -134,7 +135,49 @@ class TLDetector(object):
 
         """
         #TODO implement
-        return 0
+        if waypoints==None or pose==None:
+            rospy.logerr("No waypoint list or pose specified in get_closest_waypoint")
+            return -1
+
+        #implement search, nearest
+        min_dist = float("inf")
+        min_idx = None
+        search_range = 300 
+
+        for i, wp in enumerate(waypoints):
+            dist = self.get_distance_between_poses( wp.pose.pose, pose )
+
+            if (dist < min_dist) and (dist<search_range):
+                if (mode == None ):
+                    min_dist = dist
+                    min_idx = i
+                elif( mode == "forward" ): 
+                    po = pose.orientation         #pose orientation
+                    wpo = wp.pose.pose.orientation #waypoint orientation 
+                    wpp = wp.pose.pose.position
+
+                    car_vector = PyKDL.Rotation.Quaternion(po.x,po.y,po.z,po.w) * PyKDL.Vector(1,0,0) # change the reference frame of 1,0,0 to the orientation of the car
+                    wp_vector = PyKDL.Vector( wpp.x-pose.position.x, wpp.y-pose.position.y, 0 )
+
+                    #dot product is the cosinus of angle between both
+                    angle = np.arccos( PyKDL.dot( car_vector, wp_vector ) / car_vector.Norm() / wp_vector.Norm() )
+
+                    if angle < np.pi/2:
+                        min_dist = dist
+                        min_idx = i
+
+                    # we could use the raw for this math?
+                    # 
+                    # xyz_position = pose.position
+                    # quaternion_orientation = pose.orientation
+                    # p = xyz_position
+                    # qo = quaternion_orientation
+                    # p_list = [p.x, p.y, p.z]
+                    # qo_list = [qo.x, qo.y, qo.z, qo.w]
+                    # euler = euler_from_quaternion(qo_list)
+                    # yaw_rad = euler[2]
+        return min_idx
+
 
     def get_light_state(self, light):
         """Determines the current color of the traffic light
