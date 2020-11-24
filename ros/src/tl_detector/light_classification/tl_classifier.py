@@ -50,4 +50,9 @@ class TLClassifier(object):
 
         """
         #TODO implement light color prediction
-        return TrafficLight.UNKNOWN
+        box = self.localize_lights( image )
+        if box is None:
+            return TrafficLight.UNKNOWN
+        class_image = cv2.resize( image[box[0]:box[2], box[1]:box[3]], (32,32) )
+        return self.classify_lights( class_image )
+
