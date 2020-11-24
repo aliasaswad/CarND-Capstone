@@ -10,6 +10,10 @@ from light_classification.tl_classifier import TLClassifier
 import tf
 import cv2
 import yaml
+import math
+import PyKDL
+from tf.transformations import euler_from_quaternion
+import numpy as np
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -17,10 +21,20 @@ class TLDetector(object):
     def __init__(self):
         rospy.init_node('tl_detector')
 
+        self.debug = False
         self.pose = None
         self.waypoints = None
         self.camera_image = None
         self.lights = []
+
+        self.state = TrafficLight.UNKNOWN
+        self.last_state = TrafficLight.UNKNOWN
+        self.last_wp = -1
+        self.state_count = 0
+
+        self.light_classifier = None
+
+        self.tlclasses_d = { TrafficLight.RED : "RED", TrafficLight.YELLOW:"YELLOW", TrafficLight.GREEN:"GREEN", TrafficLight.UNKNOWN:"UNKNOWN" }
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -33,21 +47,31 @@ class TLDetector(object):
         rely on the position of the light and the camera image to predict it.
         '''
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
-        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb)
+        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1, buff_size=2**25)
+        sub7 = rospy.Subscriber('/image_raw', Image, self.test_image_cb)
 
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
 
+        #setup stop line positions in TrafficLight-style object for use later on closestwaypoint
+        self.stop_line_positions_poses = []
+        for stop in self.config['stop_line_positions']:
+            s = TrafficLight()
+            s.pose.pose.position.x = stop[0]
+            s.pose.pose.position.y = stop[1]
+            s.pose.pose.position.z = 0
+            self.stop_line_positions_poses.append(s)
+
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
+        self.tl_detector_initialized_pub = rospy.Publisher('/tl_detector_initialized', Bool, queue_size=1)
 
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
         self.listener = tf.TransformListener()
 
-        self.state = TrafficLight.UNKNOWN
-        self.last_state = TrafficLight.UNKNOWN
-        self.last_wp = -1
-        self.state_count = 0
+        self.tl_detector_initialized_pub.publish(Bool(True))
+        rospy.loginfo('Traffic light detector initialized')
+        rospy.spin()
 
         rospy.spin()
 
