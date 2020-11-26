@@ -167,7 +167,7 @@ class WaypointUpdater(object):
 
     def get_on_car_waypoint_x_y(self, current_possition, yaw_rad, index):
         wgx, wgy = self.get_waypoint_x_y(index)
-        return get_car_xy_from_global_xy(current_possition.x, current_possition.y, yaw_rad, wgx, wgy)
+        return get_carxy_from_globalxy(current_possition.x, current_possition.y, yaw_rad, wgx, wgy)
 
     def get_waypoint_x_y(self, index):
         waypoint = self.base_wp[index]
@@ -231,7 +231,7 @@ if __name__ == '__main__':
         rospy.logerr('Could not start waypoint updater node.')
 
 
-def get_car_xy_from_global_xy(car_x, car_y, yaw_rad, global_x, global_y):
+def get_carxy_from_globalxy(car_x, car_y, yaw_rad, global_x, global_y):
     # Translate global point by car's position
     xg_trans_c = global_x - car_x
     yg_trans_c = global_y - car_y
