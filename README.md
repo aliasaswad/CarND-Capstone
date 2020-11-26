@@ -1,4 +1,21 @@
-This is the project repo for the final project of the Udacity Self-Driving Car Nanodegree: Programming a Real Self-Driving Car. For more information about the project, see the project introduction [here](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/5ab4b122-83e6-436d-850f-9f4d26627fd9).
+# CarND-Self-Driving Car Engineer Capstone Project
+Self-Driving Car Engineer Nanodegree Program
+
+[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
+
+## Overview
+
+This is the project repo for my final project of the Udacity Self-Driving Car Nanodegree: Programming a Real Self-Driving Car in Udacity simulator by creating trajectory for the car. The car responding to traffic-lights and the simulator controlled by a ROS nodes. For more information about the project, see the project introduction [here](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/5ab4b122-83e6-436d-850f-9f4d26627fd9).
+
+**Note:** The project required to install Tensorflow 1.7.0 or higher. (See requirements.txt)
+
+The work based upon two main sources:
+
+1. Udacity's Capstone Project walktrough
+
+2. Traffic Light Detection and Classification with TensorFlow Object Detection API 
+
+---
 
 Please use **one** of the two installation options, either native **or** docker installation.
 
